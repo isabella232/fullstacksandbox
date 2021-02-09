@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+	<meta charset="utf-8">
+	<title>full stack sandbox console</title>
+	<meta name="description" content="interactive javascript console for Optimizely Full Stack" />
+	<meta name="keywords" content="optimizely, fullstack, console, sandbox, playground, demo" />
+    <link rel="shortcut icon" href="favicon.ico" />
+	<!--<link rel="canonical" href="http://openexchangerates.github.io/javascript-sandbox-console/" />-->
+
+	<!-- The demo styles: -->
+	<link href="javascript-sandbox-console/demo-resources/demo.css" rel="stylesheet"/>
+	
+	<!-- The Sandbox stylesheet: -->
+	<link href="javascript-sandbox-console/src/sandbox.css" rel="stylesheet"/>
+    <style>
+        body {
+            max-width:800px;
+        }
+
+        span.reflinks {
+            float: right;
+        }
+        div.reference {
+            margin:10px auto 40px;
+        }
+
+        pre.prettyprint {
+            max-width:800px;
+        	margin:10px auto 5px;
+        }
+
+        a[target="_blank"]:after {
+            content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+            margin: 0 3px 0 5px;
+        }
+    </style>
+</head>
+<body>
+
+	<!-- HTML -->
+	
+	<h1>full stack sandbox</h1>
+
+	<h2>a javascript console for playing with 
+        <a href="https://www.optimizely.com/platform/full-stack/">Optimizely Full Stack</a></h2>
+	
+    <div id="sandbox" spellcheck="false">sandbox loading...</div>
+
+    <p>
+        The full stack sandbox is a JavaScript console for playing with 
+        <a href="https://www.optimizely.com/platform/full-stack/">Optimizely Full Stack</a>.
+        It was hacked together with the excellent 
+        <a href="https://github.com/openexchangerates/javascript-sandbox-console">javascript sandbox console</a>, 
+        maintained by <a href="https://openexchangerates.org/">Open Exchange Rates</a>
+    </p>
+
+    <!-- SDK Reference Elements -->
+
+    <h2>full stack <a href="https://docs.developers.optimizely.com/full-stack/docs/javascript-sdk">js sdk</a> reference</h2>
+
+    <h3>initialize the sdk with your datafile</h3>
+    <div class="reference"
+        code="var optimizelyClient = optimizely.createInstance({sdkKey: '<Your_SDK_Key>'});"
+        docs_url="https://docs.developers.optimizely.com/full-stack/docs/initialize-sdk-javascript"
+    ></div>
+
+    <h3>get an OptimizelyConfig instance for your datafile</h3>
+    <div class="reference"
+        code="var config = optimizelyClient.getOptimizelyConfig();"
+        docs_url="https://docs.developers.optimizely.com/full-stack/docs/optimizelyconfig-javascript"
+    ></div>
+
+    <h3>examine the features (flags) in your datafile</h3>
+    <div class="reference"
+        code="var featuresMap = optimizelyClient.getOptimizelyConfig().featuresMap;"
+        docs_url="https://docs.developers.optimizely.com/full-stack/docs/optimizelyconfig-javascript"
+    ></div>
+
+    <h3>activate an experiment</h3>
+    <div class="reference"
+        code="var variationKey = optimizelyClient.activate('my_experiment_key', 'user_123');"
+        docs_url="https://docs.developers.optimizely.com/full-stack/docs/activate-javascript"
+    ></div>
+
+    <h3>get enabled features</h3>
+    <div class="reference"
+        code="var enabledFeatures = optimizelyClient.getEnabledFeatures('user_123');"
+        docs_url="https://docs.developers.optimizely.com/full-stack/docs/get-enabled-features-javascript"
+    ></div>
+
+    <h3>get feature variable value</h3>
+    <div class="reference"
+        code="var value = optimizelyClient.getFeatureVariable('my_feature_key', 'my_variable_key', 'user_123');"
+        docs_url="https://docs.developers.optimizely.com/full-stack/docs/get-feature-variable-javascript"
+    ></div>
+
+    <h3>check if feature is enabled</h3>
+    <div class="reference"
+        code="var enabled = optimizelyClient.isFeatureEnabled('price_filter', 'user_123');"
+        docs_url="https://docs.developers.optimizely.com/full-stack/docs/is-feature-enabled-javascript"
+    ></div>
+
+    <h3>track an event</h3>
+    <div class="reference"
+        code="optimizelyClient.track('my_purchase_event_key', 'user_123')"
+        docs_url="https://docs.developers.optimizely.com/full-stack/docs/track-javascript"
+    ></div>
+
+
+    <!-- Render reference code -->
+    <script type="text/javascript">
+        function htmlToElement(html) {
+            var template = document.createElement('template');
+            html = html.trim(); // Never return a text node of whitespace as the result
+            template.innerHTML = html;
+            return template.content.firstChild;
+        }
+
+        function renderReferenceBlock(divElt) {
+            pre = htmlToElement('<pre class="prettyprint"></pre>')
+            pre.innerText = divElt.getAttribute('code');
+            span = htmlToElement('<span class="reflinks"><a href="" target="_blank">docs</a> | <a href="" class="tryit">try it</a></span>');
+            span.children[0].setAttribute('href', divElt.getAttribute('docs_url'));
+            span.children[1].onclick = function() {
+                window.sandbox.currentHistory = divElt.getAttribute('code');
+                sandbox.update();
+                sandbox.textarea.focus();
+                return false;
+            }
+            divElt.appendChild(pre);
+            divElt.appendChild(span);
+        }
+
+        document.querySelectorAll('div.reference').forEach(renderReferenceBlock)
+    </script>
+
+    <!-- The sandbox template -->
+    <script type="text/template" id="tplSandbox">
+        <pre class="output"></pre>
+        <div class="input">
+            <textarea rows="1" placeholder="<%= placeholder %>"></textarea>
+        </div>
+    </script>
+
+    <!-- The command/result template (NB whitespace/line breaks matter inside <pre> tag): -->
+    <script type="text/template" id="tplCommand"><% if (! _hidden) { %><span class="command"><%= command %></span>
+    <span class="prefix"><%= this.resultPrefix %></span><span class="<%= _class %>"><%= result %></span>
+    <% } %></script>
+
+    <!-- Load Optimizely Full Stack SDK -->
+    <script src="https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js"></script>
+    <script type="text/javascript">
+        const optimizely = window.optimizelySdk
+    </script>
+
+    <script src="javascript-sandbox-console/src/libs/underscore.min.js"></script>
+    <script src="javascript-sandbox-console/src/libs/backbone.min.js"></script>
+    <script src="javascript-sandbox-console/src/libs/backbone-localstorage.min.js"></script><!-- opt -->
+    <script src="javascript-sandbox-console/src/libs/jquery.min.js"></script>
+
+    <script src="javascript-sandbox-console/src/sandbox-console.js"></script>
+
+	<!-- Some extras for the demo: -->
+	<script src="javascript-sandbox-console/demo-resources/js/prettify.js"></script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Create the sandbox:
+            window.sandbox = new Sandbox.View({
+                el : $('#sandbox'),
+                model : new Sandbox.Model()
+            });
+
+            // prettify code blocks:
+            prettyPrint();
+
+            window.sandbox.currentHistory = "var optimizelyClient = optimizely.createInstance({sdkKey: '<Your_SDK_Key>'});";
+            sandbox.update();
+            sandbox.textarea.focus();
+
+        });
+    </script>
+</body>
